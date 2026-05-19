@@ -18,7 +18,8 @@ const allowedMimeTypes = [
   "image/gif",
   "application/pdf",
   "text/plain",
-  "application/zip"
+  "application/zip",
+  "application/vnd.android.package-archive"
 ]
 
 const storage = multer.diskStorage({

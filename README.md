@@ -103,7 +103,7 @@ A página permite enviar um arquivo diretamente para `POST /api/upload`, mostra 
 
 ## Observações
 
-- Tipo de arquivo permitido: `jpeg`, `png`, `gif`, `pdf`, `txt`, `zip`
+- Tipo de arquivo permitido: `jpeg`, `png`, `gif`, `pdf`, `txt`, `zip`, `apk`
 - Limite de upload: `10 MB`
 - Os arquivos são salvos em `uploads/`
 
