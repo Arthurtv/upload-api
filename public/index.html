@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Upload API</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { 
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+      margin: 0; 
+      padding: 1rem;
+      background: #f5f5f5;
+    }
+    .container { max-width: 700px; margin: 0 auto; }
+    h1 { text-align: center; color: #333; margin-bottom: 2rem; }
+    
+    .tabs {
+      display: flex;
+      gap: 0;
+      margin-bottom: 0;
+      border-bottom: 2px solid #ddd;
+    }
+    .tab-btn {
+      padding: 1rem 1.5rem;
+      border: none;
+      background: none;
+      cursor: pointer;
+      font-size: 1rem;
+      color: #666;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -2px;
+      transition: all 0.3s;
+    }
+    .tab-btn:hover { color: #333; }
+    .tab-btn.active { color: #007bff; border-bottom-color: #007bff; }
+    
+    .tab-content {
+      display: none;
+      animation: fadeIn 0.3s;
+    }
+    .tab-content.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    
+    .card { 
+      background: white; 
+      padding: 2rem; 
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: #333;
+    }
+    input[type="text"],
+    input[type="password"],
+    input[type="file"],
+    textarea {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-family: inherit;
+      font-size: 1rem;
+    }
+    textarea { font-family: monospace; resize: vertical; min-height: 100px; }
+    input[type="text"]:focus,
+    input[type="password"]:focus,
+    input[type="file"]:focus,
+    textarea:focus {
+      outline: none;
+      border-color: #007bff;
+      box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+    }
+    
+    button {
+      padding: 0.75rem 1.5rem;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 500;
+      transition: background 0.3s;
+    }
+    button:hover { background: #0056b3; }
+    button:disabled { background: #ccc; cursor: not-allowed; }
+    
+    .message {
+      margin-top: 1rem;
+      padding: 1rem;
+      border-radius: 4px;
+      border-left: 4px solid;
+    }
+    .success {
+      background: #f0f9ff;
+      border-left-color: #28a745;
+      color: #155724;
+    }
+    .error {
+      background: #fff5f5;
+      border-left-color: #dc3545;
+      color: #721c24;
+    }
+    .info {
+      background: #e7f3ff;
+      border-left-color: #007bff;
+      color: #004085;
+    }
+    
+    .message strong { display: block; margin-bottom: 0.5rem; }
+    .message a {
+      color: inherit;
+      text-decoration: underline;
+    }
+    
+    .token-display {
+      background: #f0f0f0;
+      padding: 1rem;
+      border-radius: 4px;
+      border: 1px solid #ddd;
+      font-family: monospace;
+      word-break: break-all;
+      margin: 1rem 0;
+    }
+    
+    .copy-btn {
+      display: inline-block;
+      padding: 0.5rem 1rem;
+      margin-top: 0.5rem;
+      font-size: 0.9rem;
+      background: #6c757d;
+    }
+    .copy-btn:hover { background: #5a6268; }
+    
+    #preview {
+      margin: 1.5rem 0;
+      max-width: 100%;
+    }
+    #preview img {
+      max-width: 100%;
+      max-height: 400px;
+      border-radius: 4px;
+    }
+    #preview object {
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    
+    .tokens-list {
+      margin-top: 1rem;
+    }
+    .token-item {
+      background: #f9f9f9;
+      padding: 0.75rem;
+      border-radius: 4px;
+      margin-bottom: 0.5rem;
+      border-left: 3px solid #007bff;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .token-item small { color: #666; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Upload API</h1>
+    
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('token-gen')">Gerar Token</button>
+      <button class="tab-btn" onclick="switchTab('upload')">Upload</button>
+    </div>
+    
+    <div class="card">
+      <!-- Aba: Gerar Token -->
+      <div id="token-gen" class="tab-content active">
+        <h2>Gerar Token de Upload</h2>
+        
+        <p style="color: #666;">Clique no botão abaixo para gerar um novo token de upload.</p>
+        
+        <button onclick="generateToken()">Gerar Novo Token</button>
+        
+        <div id="tokenResult"></div>
+      </div>
+      
+      <!-- Aba: Upload -->
+      <div id="upload" class="tab-content">
+        <h2>Enviar Arquivo</h2>
+        
+        <div class="form-group">
+          <label>Token de Upload:</label>
+          <input type="text" id="uploadToken" placeholder="Cole o token de upload aqui" />
+        </div>
+        
+        <div class="form-group">
+          <label>Arquivo:</label>
+          <input type="file" id="fileInput" />
+        </div>
+        
+        <button onclick="uploadFile()">Enviar arquivo</button>
+        
+        <div id="preview"></div>
+        <div id="uploadResult"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Tab switching
+    function switchTab(tabName) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'))
+      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'))
+      document.getElementById(tabName).classList.add('active')
+      event.target.classList.add('active')
+    }
+    
+    // Token generation
+    async function generateToken() {
+      const result = document.getElementById('tokenResult')
+      
+      try {
+        const response = await fetch('/api/tokens', {
+          method: 'POST'
+        })
+        
+        const body = await response.json()
+        if (!response.ok) {
+          throw new Error(body.error || 'Erro ao gerar token')
+        }
+        
+        result.innerHTML = `
+          <div class="message success">
+            <strong>Token gerado com sucesso!</strong>
+            <div class="token-display">${body.token}</div>
+            <button class="copy-btn" onclick="copyToClipboard('${body.token}')">Copiar Token</button>
+          </div>
+        `
+      } catch (error) {
+        result.innerHTML = `<div class="message error"><strong>Erro:</strong> ${error.message}</div>`
+      }
+    }
+    
+    function copyToClipboard(text) {
+      navigator.clipboard.writeText(text).then(() => {
+        alert('Token copiado!')
+      })
+    }
+    
+    // File upload
+    const fileInput = document.getElementById('fileInput')
+    const preview = document.getElementById('preview')
+    
+    fileInput.addEventListener('change', () => {
+      preview.innerHTML = ''
+      if (!fileInput.files.length) return
+      
+      const file = fileInput.files[0]
+      const type = file.type
+      const objectUrl = URL.createObjectURL(file)
+      
+      if (type.startsWith('image/')) {
+        const img = document.createElement('img')
+        img.src = objectUrl
+        img.alt = 'Prévia'
+        img.onload = () => URL.revokeObjectURL(objectUrl)
+        preview.appendChild(img)
+      } else if (type === 'application/pdf') {
+        const object = document.createElement('object')
+        object.data = objectUrl
+        object.type = 'application/pdf'
+        object.width = '100%'
+        object.height = '500'
+        object.innerHTML = 'Seu navegador não suporta visualização de PDF.'
+        preview.appendChild(object)
+      } else {
+        preview.innerHTML = '<div class="message info">Prévia não disponível para este tipo de arquivo.</div>'
+        URL.revokeObjectURL(objectUrl)
+      }
+    })
+    
+    async function uploadFile() {
+      const token = document.getElementById('uploadToken').value.trim()
+      const result = document.getElementById('uploadResult')
+      
+      if (!token) {
+        result.innerHTML = '<div class="message error">Digite o token de upload</div>'
+        return
+      }
+      
+      if (!fileInput.files.length) {
+        result.innerHTML = '<div class="message error">Selecione um arquivo</div>'
+        return
+      }
+      
+      const formData = new FormData()
+      formData.append('file', fileInput.files[0])
+      
+      try {
+        const response = await fetch('/api/upload', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}` },
+          body: formData
+        })
+        
+        const body = await response.json()
+        if (!response.ok) {
+          throw new Error(body.error || 'Erro desconhecido')
+        }
+        
+        const urlLink = body.url ? `<br><a href="${body.url}" target="_blank">🔗 Abrir arquivo</a>` : ''
+        result.innerHTML = `
+          <div class="message success">
+            <strong>Upload realizado!</strong>
+            Arquivo: ${body.file.filename}<br>
+            Tamanho: ${(body.file.size / 1024).toFixed(2)} KB${urlLink}
+          </div>
+        `
+        fileInput.value = ''
+        preview.innerHTML = ''
+      } catch (error) {
+        result.innerHTML = `<div class="message error"><strong>Falha no upload:</strong> ${error.message}</div>`
+      }
+    }
+  </script>
+</body>
+</html>
