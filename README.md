@@ -1,11 +1,12 @@
 # Upload API
 
-Projeto Node.js com Express, Multer e Prisma para salvar uploads em SQLite.
+Projeto Node.js com Express, Multer e Prisma para salvar uploads em PostgreSQL.
 
 ## Requisitos
 
 - Node.js 18+ ou compatível
 - npm
+- Banco de dados PostgreSQL
 
 ## Instalação
 
@@ -18,15 +19,43 @@ npm install
 Crie um arquivo `.env` na raiz do projeto com as variáveis:
 
 ```env
-DATABASE_URL="file:./dev.db"
+DATABASE_URL="postgresql://USER:PASSWORD@HOST:PORT/DATABASE?schema=public"
 PORT=3000
+```
+
+Para uso local, configure um banco PostgreSQL e aplique as migrations:
+
+```bash
+npx prisma migrate deploy
 ```
 
 ## Scripts
 
 - `npm run prisma:generate`: gera o cliente Prisma
+- `npm run prisma:migrate:deploy`: aplica migrations no ambiente de deploy
 - `npm start`: inicia o servidor
 - `npm run dev`: inicia o servidor em modo watch (Node 20+)
+
+## Deploy no Railway
+
+1. Crie um novo projeto no Railway e conecte este repositório.
+2. Adicione o plugin PostgreSQL ao projeto.
+3. No painel de variáveis de ambiente, defina `DATABASE_URL` com a URL do Postgres fornecida pelo Railway.
+4. Configure o build command como:
+
+```bash
+npm install && npx prisma generate && npx prisma migrate deploy
+```
+
+5. Configure o start command como:
+
+```bash
+npm start
+```
+
+6. Não é necessário definir `PORT`, pois Railway fornece automaticamente.
+
+> Atenção: O diretório `uploads/` é efêmero no Railway. Os arquivos gravados no disco local podem desaparecer após redeploy ou reinício. Para persistência, use um armazenamento externo como S3.
 
 ## Endpoints
 
