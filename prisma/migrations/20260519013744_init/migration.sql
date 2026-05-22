@@ -1,9 +1,0 @@
--- CreateTable
-CREATE TABLE "File" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "filename" TEXT NOT NULL,
-    "path" TEXT NOT NULL,
-    "mimetype" TEXT NOT NULL,
-    "size" INTEGER NOT NULL,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
